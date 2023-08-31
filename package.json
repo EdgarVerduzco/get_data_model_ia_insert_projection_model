@@ -7,5 +7,11 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1448.0",
+    "axios": "^1.5.0",
+    "mssql": "^9.2.0",
+    "oracledb": "^6.1.0"
+  }
 }
