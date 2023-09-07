@@ -1,5 +1,5 @@
 const {connectToSqlDatabase, databases, connectToOracleDatabase} = require("./databaseConnector");
-const uri = 's3://data-forecast-model/csv/proyeccion-vs-real-20230901.csv'
+const uri = 's3://data-forecast-model/csv/proyeccion-vs-real-20230907.csv'
 const { sendReturnEmail, generateEmailContent } = require('./emailUtils');
 const axios = require('axios');
 const env = require('./env')
