@@ -36,6 +36,8 @@ async function connectToSqlDatabase(databaseInfo) {
             server: credentials.server || credentials.url,
             database: credentials.name_database || credentials.database,
             dialect: 'mssql',
+            connectionTimeout: 60000,
+            requestTimeout: 60000
         };
 
         const pool = new sql.ConnectionPool(config);

@@ -1,6 +1,6 @@
 const {connectToSqlDatabase, databases, connectToOracleDatabase} = require("./databaseConnector");
-const uri = 's3://data-forecast-model/csv/proyeccion-vs-real-20230907.csv'
-const { sendReturnEmail, generateEmailContent } = require('./emailUtils');
+const uri = 's3://data-forecast-model/csv/proyeccion-vs-real-20231031.csv'
+const {sendReturnEmail, generateEmailContent} = require('./emailUtils');
 const axios = require('axios');
 const env = require('./env')
 const messages = require('./messages')
@@ -50,7 +50,7 @@ async function getDataWithReceptions(s3_path, pool) {
         // check if record exists
         let existData = await pool.request().query(env.SCRIPTS.FK.GET_LIST_PRODUCER_WITH_RECEPTION)
 
-        if (existData.recordset.length  == 0)
+        if (existData.recordset.length == 0)
             throw messages.ERROR.NO_DATA_PRODUCERS
 
         return existData.recordset
@@ -78,7 +78,7 @@ async function validateEntriesWithAI(list_producer_with_receptions, s3_path, poo
         const _post = {
             path: s3_path,
             season: "2023-2024",
-            provider_code: dataEntry.ProducerOrchard,
+            provider_code: dataEntry.Producer,
             fruit_name: dataEntry.Fruit
         };
 
@@ -142,8 +142,7 @@ async function VerifyExistData(data, pool) {
         // Check if the data record exists in the database
         let existData = await pool.request()
             .input('date_projection', sql.TYPES.VarChar, data.output['last-date'])
-            .input('pr_producer', sql.TYPES.VarChar, data.input.provider_code.split('-')[0])
-            .input('id_orchard', sql.TYPES.Int, data.input.provider_code.split('-')[1])
+            .input('pr_producer', sql.TYPES.VarChar, data.input.provider_code)
             .input('fruit_name', sql.TYPES.VarChar, data.input.fruit_name.toUpperCase())
             .query(env.SCRIPTS.AWS.SCRIPT_EXIST_PROJECTION);
 
@@ -173,8 +172,7 @@ async function InsertData(data, pool) {
         // Insert main data into DB
         const result_data = await pool.request()
             .input('date', sql.TYPES.VarChar, data.output['last-date'])
-            .input('prod', sql.TYPES.VarChar, data.input.provider_code.split('-')[0])
-            .input('id_orchard', sql.TYPES.Int, data.input.provider_code.split('-')[1])
+            .input('prod', sql.TYPES.VarChar, data.input.provider_code)
             .input('fruit', sql.TYPES.VarChar, data.input.fruit_name.toUpperCase())
             .query(env.SCRIPTS.AWS.SCRIPT_INSERT_PROJECTION);
 

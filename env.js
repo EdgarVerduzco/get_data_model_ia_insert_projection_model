@@ -1,9 +1,9 @@
 'use strict';
 //#region Scripts
 const insert_projection = `
-INSERT INTO Projection (date_projection, pr_producer, id_fruit, id_orchard)
+INSERT INTO Projection (date_projection, pr_producer, id_fruit)
 OUTPUT Inserted.ID
-VALUES (@date, @prod, (SELECT id FROM IA_Projection.dbo.Fruits WHERE fuit_name = @fruit), @id_orchard);
+VALUES (@date, @prod, (SELECT id FROM IA_Projection.dbo.Fruits WHERE fuit_name = @fruit));
 `
 
 const insert_projection_detail = `
@@ -14,14 +14,13 @@ VALUES (@id_projection, @future_date, @human, @ia_model);
 
 const get_list_producer_with_reception = `
 SELECT DISTINCT
-    prod.CardCodeSAP + '-' + CAST(huerto.idSAP AS varchar(10)) AS ProducerOrchard,
+    prod.CardCodeSAP  AS Producer,
     CASE
         WHEN pres.Organico = 'Y' THEN UPPER(cul.[Desc] + ' ORG')
         ELSE UPPER(cul.[Desc])
     END AS Fruit
 FROM Trazabilidad.dbo.Recepcion rec
 INNER JOIN Trazabilidad.dbo.Productores prod ON prod.id = rec.idProductor
-INNER JOIN Trazabilidad.dbo.Huerto huerto ON prod.id = huerto.idProductor
 INNER JOIN Trazabilidad.dbo.Presentacion pres ON pres.id = rec.idPresentacion
 INNER JOIN Trazabilidad.dbo.Cultivo cul ON cul.id = pres.idCultivo
 WHERE YEAR(rec.FechaRecepcion) = YEAR(GETDATE())
@@ -32,7 +31,6 @@ SELECT id
 FROM IA_Projection.dbo.Projection
 WHERE date_projection = @date_projection
   AND pr_producer = @pr_producer
-  AND id_orchard = @id_orchard
   AND id_fruit = (SELECT id FROM IA_Projection.dbo.Fruits WHERE fuit_name = @fruit_name);
 `
 
@@ -174,7 +172,7 @@ module.exports = {
         EDGAR: 'edgar.verduzco@tiveg.com',
     },
     URL_IA_MODEL: 'https://itzs15wy50.execute-api.us-east-1.amazonaws.com/Prod/hello/',
-    HTML:{
+    HTML: {
         STYLES: emailStyles,
         BODY: email_template_success,
     },
